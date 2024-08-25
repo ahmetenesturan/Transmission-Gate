@@ -1,0 +1,42 @@
+** sch_path: /foss/designs/Transmission-Gate/xschem/transmission_gate_tb.sch
+**.subckt transmission_gate_tb
+V1 in 0 PULSE(0.5 0.48 1u 1n 1n 1u 10u)
+V2 vdd 0 1.8
+V3 cont 0 0
+C1 out 0 1p m=1
+x1 vdd out in cont 0 cont_n transmission_gate W=20 L=1 NF=1 M=1
+V4 cont_n 0 1.8
+**** begin user architecture code
+
+.control
+save all
+tran 1n 15u
+write transmission_gate_tb.raw
+plot V(out)
+.endc
+
+
+** opencircuitdesign pdks install
+.lib /foss/pdks/sky130A/libs.tech/ngspice/sky130.lib.spice tt
+
+
+**** end user architecture code
+**.ends
+
+* expanding   symbol:  /foss/designs/Transmission-Gate/xschem/transmission_gate.sym # of pins=6
+** sym_path: /foss/designs/Transmission-Gate/xschem/transmission_gate.sym
+** sch_path: /foss/designs/Transmission-Gate/xschem/transmission_gate.sch
+.subckt transmission_gate VDD OUT IN CONT VSS CONT_N  W=20 L=1 NF=1 M=1
+*.opin OUT
+*.ipin IN
+*.iopin VDD
+*.iopin VSS
+*.ipin CONT
+*.ipin CONT_N
+XM2 IN CONT OUT VSS sky130_fd_pr__nfet_01v8 L=L W=W nf=NF ad='int((nf+1)/2) * W/nf * 0.29' as='int((nf+2)/2) * W/nf * 0.29' pd='2*int((nf+1)/2) * (W/nf + 0.29)'
++ ps='2*int((nf+2)/2) * (W/nf + 0.29)' nrd='0.29 / W' nrs='0.29 / W' sa=0 sb=0 sd=0 mult=M m=M
+XM11 IN CONT_N OUT VDD sky130_fd_pr__pfet_01v8 L=L W=W nf=NF ad='int((nf+1)/2) * W/nf * 0.29' as='int((nf+2)/2) * W/nf * 0.29' pd='2*int((nf+1)/2) * (W/nf + 0.29)'
++ ps='2*int((nf+2)/2) * (W/nf + 0.29)' nrd='0.29 / W' nrs='0.29 / W' sa=0 sb=0 sd=0 mult=M m=M
+.ends
+
+.end
