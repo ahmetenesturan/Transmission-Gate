@@ -1,6 +1,6 @@
-** sch_path: /foss/designs/Transmission-Gate/xschem/transmission_gate_tb.sch
-**.subckt transmission_gate_tb
-V1 in 0 0.9
+** sch_path: /foss/designs/Transmission-Gate/xschem/transmission_gate_resistance_tb.sch
+**.subckt transmission_gate_resistance_tb
+V1 in 0 PULSE(0.5 0.48 1u 1n 1n 1u 10u)
 V2 vdd 0 1.8
 V3 cont 0 1.8
 x1 vdd out in cont 0 cont_n transmission_gate W=20 L=1 NF=1 M=1
@@ -8,15 +8,15 @@ XM2 cont_n cont 0 0 sky130_fd_pr__nfet_01v8 L=0.15 W=1 nf=1 ad='int((nf+1)/2) * 
 + ps='2*int((nf+2)/2) * (W/nf + 0.29)' nrd='0.29 / W' nrs='0.29 / W' sa=0 sb=0 sd=0 mult=1 m=1
 XM11 cont_n cont vdd vdd sky130_fd_pr__pfet_01v8 L=0.15 W=1 nf=1 ad='int((nf+1)/2) * W/nf * 0.29' as='int((nf+2)/2) * W/nf * 0.29'
 + pd='2*int((nf+1)/2) * (W/nf + 0.29)' ps='2*int((nf+2)/2) * (W/nf + 0.29)' nrd='0.29 / W' nrs='0.29 / W' sa=0 sb=0 sd=0 mult=1 m=1
-RLoad out 0 1 m=1
+XR17 0 out 0 sky130_fd_pr__res_xhigh_po_5p73 L=5.73 mult=1 m=1
 **** begin user architecture code
 
 .control
 save all
 *tran 1n 15u
 dc V1 0 1 0.1
-write transmission_gate_tb.raw
-plot I(RLoad)
+write transmission_gate_resistance_tb.raw
+plot V(out)
 .endc
 
 
