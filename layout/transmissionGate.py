@@ -14,31 +14,49 @@ from glayout.flow.primitives.fet import nmos, pmos
 
 from glayout.flow.pdk.sky130_mapped import sky130_mapped_pdk
 
-def TransimissionGate(pdk: MappedPDK, width: float, length: float, fingers: int) -> Component:
-    TransimissionGate = Component(name="TransimissionGate")
+from glayout.flow.routing.straight_route import straight_route
+from glayout.flow.routing.L_route import L_route
+
+from gdsfactory.components import rectangle
+
+def TransmissionGate(pdk: MappedPDK, width: float, length: float, fingers: int) -> Component:
+    TransmissionGate = Component(name="TransmissionGate")
 
     tran_gate_nmos = nmos(sky130_mapped_pdk, width=width, length=length, fingers=fingers, with_dummy=True, with_tie=True)
     tran_gate_nmos_ref = prec_ref_center(tran_gate_nmos)
-    TransimissionGate.add(tran_gate_nmos_ref)
+    TransmissionGate.add(tran_gate_nmos_ref)
 
     tran_gate_pmos = pmos(sky130_mapped_pdk, width=width, length=length, fingers=fingers, with_dummy=True, with_tie=True)
     tran_gate_pmos_ref = prec_ref_center(tran_gate_pmos)
-    TransimissionGate.add(tran_gate_pmos_ref)
+    TransmissionGate.add(tran_gate_pmos_ref)
 
     offset = evaluate_bbox(tran_gate_nmos)[1] + pdk.util_max_metal_seperation()
     movey(tran_gate_pmos_ref, offset)
 
-    TransimissionGate.add_ports(tran_gate_nmos_ref.get_ports_list(), prefix="nmos_")
-    TransimissionGate.add_ports(tran_gate_pmos_ref.get_ports_list(), prefix="pmos_")
+    TransmissionGate.add_ports(tran_gate_nmos_ref.get_ports_list(), prefix="nmos_")
+    TransmissionGate.add_ports(tran_gate_pmos_ref.get_ports_list(), prefix="pmos_")
 
-    TransimissionGate << smart_route(pdk, TransimissionGate.ports["nmos_drain_N"], TransimissionGate.ports["pmos_drain_S"], tran_gate_nmos_ref, TransimissionGate)
-    TransimissionGate << smart_route(pdk, TransimissionGate.ports["nmos_source_N"], TransimissionGate.ports["pmos_source_S"], tran_gate_nmos_ref, TransimissionGate)
+    #TransmissionGate << smart_route(pdk, TransmissionGate.ports["nmos_drain_N"], TransmissionGate.ports["pmos_drain_S"], tran_gate_nmos_ref, TransmissionGate)
+    #TransmissionGate << smart_route(pdk, TransmissionGate.ports["nmos_source_N"], TransmissionGate.ports["pmos_source_S"], tran_gate_nmos_ref, TransmissionGate)
+
+    #TransmissionGate << straight_route(pdk, TransmissionGate.ports["nmos_drain_N"], TransmissionGate.ports["pmos_drain_S"])
+    TransmissionGate << c_route(pdk, TransmissionGate.ports["nmos_drain_W"], TransmissionGate.ports["pmos_drain_W"])
+    TransmissionGate << c_route(pdk, TransmissionGate.ports["nmos_source_E"], TransmissionGate.ports["pmos_source_E"])
 
     #print(tran_gate_nmos_ref.get_ports_dict())
 
-    return TransimissionGate
+    port_list = ["VDD", "VSS", "IN", "CONT", "CONT_N", "OUT"]
+    pin_labels = list()
+    iopin = rectangle(size=(5,5),layer=(72,16), centered=True)
 
-tg = TransimissionGate(sky130_mapped_pdk, 4, 1, 2)
+    return TransmissionGate
+
+
+
+
+tg = TransmissionGate(sky130_mapped_pdk, 4, 1, 2)
+
+tg.show()
 
 klayout_drc_result = sky130_mapped_pdk.drc_magic(tg, tg.name)
 
